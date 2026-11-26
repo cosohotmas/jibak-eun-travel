@@ -1,9 +1,17 @@
 # 집밖은여행 (Jibak-eun Travel) · `jibak-eun-travel`
 
+**Live Demo:** [https://jibak-eun-travel.vercel.app/](https://jibak-eun-travel.vercel.app/)
+
 > **개인 포트폴리오 · 개발 역량 시연용 프로젝트 안내**  
 > 본 프로젝트는 **실제 상용 쇼핑몰·결제 서비스가 아닌 개인 포트폴리오 및 AI·풀스택 개발 역량 시연용 데모 웹 애플리케이션**입니다. 표시된 상품 가격, 재고, 배송 및 결제 흐름은 데모 목적의 시뮬레이션으로 동작합니다.
 
 지식 그래프(Knowledge Graph)와 RAG 기반 공식 수하물·교통 규정 검증을 결합한 **AI 트래블 컨시어지 & 스마트 패킹 스토어프론트**입니다. 사용자가 선택한 복합 이동수단(도보·자가용·지하철·버스·철도·배·항공) 중 **가장 엄격한 최소단위 규정**을 자동 계산하고, 실시간 카탈로그·가방 규격·적재율 게이지를 단일 기준으로 연동해 할루시네이션 없는 준비물 추천을 제공합니다.
+
+---
+
+## 화면 미리보기
+
+[![집밖은여행 (Jibak-eun Travel) 메인 화면](./docs/screenshots/main-workspace.png)](https://jibak-eun-travel.vercel.app/)
 
 ---
 
@@ -42,6 +50,9 @@
 jibak-eun-travel/
 ├── api/
 │   └── index.ts                 # Vercel Serverless Function 엔트리포인트 (Express 앱 export)
+├── docs/
+│   └── screenshots/
+│       └── main-workspace.png   # README 화면 미리보기 스크린샷
 ├── public/
 │   └── assets/aistudio/         # 상품·히어로 정적 이미지 에셋
 ├── server/
