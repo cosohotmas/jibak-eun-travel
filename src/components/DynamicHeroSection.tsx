@@ -9,6 +9,8 @@ import {
 } from 'lucide-react';
 import type { HeroHashtag, HeroSlide, TransportModeId } from '../types/domain';
 
+const BUS_AIRPORT_VIDEO_SRC = '/hero-a-loop2.mp4';
+
 interface DynamicHeroSectionProps {
   slides: HeroSlide[];
   collapsed: boolean;
@@ -31,6 +33,7 @@ export const DynamicHeroSection: React.FC<DynamicHeroSectionProps> = ({
 }) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [paused, setPaused] = useState(false);
+  const [videoFailed, setVideoFailed] = useState(false);
 
   const safeIndex = slides.length > 0 ? activeIndex % slides.length : 0;
   const activeSlide = slides[safeIndex];
@@ -44,6 +47,19 @@ export const DynamicHeroSection: React.FC<DynamicHeroSectionProps> = ({
   }, [collapsed, paused, slides.length]);
 
   if (!activeSlide) return null;
+
+  // 3번째 슬라이드(인덱스 2) 또는 themeTag/id에 '03' / '버스' / '공항'이 포함된 경우에만 영상 적용
+  const isBusAirportSlide =
+    safeIndex === 2 ||
+    activeSlide.id?.includes('03') ||
+    activeSlide.themeTag?.startsWith('03') ||
+    (activeSlide.themeTag?.includes('버스') && activeSlide.themeTag?.includes('공항'));
+
+  const slideWithOptionalVideo = activeSlide as HeroSlide & { videoUrl?: string };
+  const resolvedVideoSrc = isBusAirportSlide
+    ? slideWithOptionalVideo.videoUrl ?? BUS_AIRPORT_VIDEO_SRC
+    : undefined;
+  const canPlayVideo = Boolean(resolvedVideoSrc) && !videoFailed;
 
   return (
     <section className="mx-auto max-w-7xl px-4 sm:px-6 pt-4">
@@ -94,30 +110,47 @@ export const DynamicHeroSection: React.FC<DynamicHeroSectionProps> = ({
             onMouseLeave={() => setPaused(false)}
             className="relative rounded-2xl overflow-hidden border border-[var(--border-subtle)] bg-slate-900 text-white min-h-[320px] sm:h-[360px] flex flex-col justify-between"
           >
-            {/* Background Media with Ken Burns Zoom & Gentle Parallax */}
-            <AnimatePresence mode="sync">
-              <motion.div
-                key={activeSlide.id}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.65 }}
-                className="absolute inset-0 bg-gradient-to-br from-slate-900 via-sky-950 to-teal-950"
-              >
-                <motion.img
-                  src={activeSlide.imageUrl}
-                  alt={activeSlide.headline}
-                  referrerPolicy="no-referrer"
-                  initial={{ scale: 1.0, x: 0 }}
-                  animate={{ scale: 1.07, x: -14 }}
-                  transition={{ duration: 9, ease: 'easeOut' }}
-                  className="w-full h-full object-cover object-center"
+            {/* Background Media: Only on Slide 03 (Bus & Airport); Image + Ken Burns on others */}
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-slate-900 via-sky-950 to-teal-950">
+              {canPlayVideo ? (
+                <video
+                  key={resolvedVideoSrc}
+                  src={resolvedVideoSrc}
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  preload="metadata"
+                  onError={() => setVideoFailed(true)}
+                  className="w-full h-full object-cover object-center brightness-95 contrast-95"
                 />
-                {/* Measured Contrast Scrim (>= 4.5:1 text legibility across all frames) */}
-                <div className="absolute inset-0 bg-gradient-to-r from-slate-950/88 via-slate-950/68 to-slate-950/35" />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-slate-950/35" />
-              </motion.div>
-            </AnimatePresence>
+              ) : (
+                <AnimatePresence mode="sync">
+                  <motion.div
+                    key={activeSlide.id}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.65 }}
+                    className="absolute inset-0"
+                  >
+                    <motion.img
+                      src={activeSlide.imageUrl}
+                      alt={activeSlide.headline}
+                      referrerPolicy="no-referrer"
+                      initial={{ scale: 1.0, x: 0 }}
+                      animate={{ scale: 1.07, x: -14 }}
+                      transition={{ duration: 9, ease: 'easeOut' }}
+                      className="w-full h-full object-cover object-center"
+                    />
+                  </motion.div>
+                </AnimatePresence>
+              )}
+
+              {/* Measured Contrast Scrim */}
+              <div className="absolute inset-0 bg-gradient-to-r from-slate-950/85 via-slate-950/60 to-slate-950/25" />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/75 via-transparent to-slate-950/30" />
+            </div>
 
             {/* Top Row: Slide Theme Indicator & Collapse Control */}
             <div className="relative z-10 px-5 sm:px-8 pt-4 flex items-center justify-between gap-3">
