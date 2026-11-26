@@ -157,6 +157,17 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
                   {cartCount}
                 </span>
               </button>
+
+              <button
+                type="button"
+                onClick={() => onNavigateRoute('admin')}
+                title="관리자 페이지로 이동 (#admin-console)"
+                aria-label="관리자 페이지로 이동"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-100/90 dark:bg-slate-800/90 px-2.5 py-1.5 text-xs font-semibold text-[var(--text-primary)] hover:bg-[var(--bg-elevated)] transition cursor-pointer"
+              >
+                <Shield className="w-3.5 h-3.5 text-[var(--brand-primary)]" />
+                <span className="hidden sm:inline">관리자</span>
+              </button>
             </>
           )}
         </div>

@@ -557,6 +557,7 @@ function StorefrontApp() {
   const handleNavigateRoute = (next: 'store' | 'admin') => {
     setRoute(next);
     window.location.hash = next === 'admin' ? '#admin-console' : '';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
