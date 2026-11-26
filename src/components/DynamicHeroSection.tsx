@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import type { HeroHashtag, HeroSlide, TransportModeId } from '../types/domain';
 
+const RAIL_WALK_VIDEO_SRC = '/hero-a-loop3.mp4';
 const BUS_AIRPORT_VIDEO_SRC = '/hero-a-loop2.mp4';
 
 interface DynamicHeroSectionProps {
@@ -33,7 +34,7 @@ export const DynamicHeroSection: React.FC<DynamicHeroSectionProps> = ({
 }) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [paused, setPaused] = useState(false);
-  const [videoFailed, setVideoFailed] = useState(false);
+  const [failedVideos, setFailedVideos] = useState<Record<string, boolean>>({});
 
   const safeIndex = slides.length > 0 ? activeIndex % slides.length : 0;
   const activeSlide = slides[safeIndex];
@@ -48,7 +49,12 @@ export const DynamicHeroSection: React.FC<DynamicHeroSectionProps> = ({
 
   if (!activeSlide) return null;
 
-  // 3번째 슬라이드(인덱스 2) 또는 themeTag/id에 '03' / '버스' / '공항'이 포함된 경우에만 영상 적용
+  const isRailWalkSlide =
+    safeIndex === 0 ||
+    activeSlide.id?.includes('01') ||
+    activeSlide.themeTag?.startsWith('01') ||
+    (activeSlide.themeTag?.includes('도보') && activeSlide.themeTag?.includes('철도'));
+
   const isBusAirportSlide =
     safeIndex === 2 ||
     activeSlide.id?.includes('03') ||
@@ -56,10 +62,21 @@ export const DynamicHeroSection: React.FC<DynamicHeroSectionProps> = ({
     (activeSlide.themeTag?.includes('버스') && activeSlide.themeTag?.includes('공항'));
 
   const slideWithOptionalVideo = activeSlide as HeroSlide & { videoUrl?: string };
-  const resolvedVideoSrc = isBusAirportSlide
-    ? slideWithOptionalVideo.videoUrl ?? BUS_AIRPORT_VIDEO_SRC
-    : undefined;
-  const canPlayVideo = Boolean(resolvedVideoSrc) && !videoFailed;
+  const resolvedVideoSrc =
+    slideWithOptionalVideo.videoUrl ??
+    (isRailWalkSlide
+      ? RAIL_WALK_VIDEO_SRC
+      : isBusAirportSlide
+        ? BUS_AIRPORT_VIDEO_SRC
+        : undefined);
+
+  const canPlayVideo =
+    Boolean(resolvedVideoSrc) && (!resolvedVideoSrc || !failedVideos[resolvedVideoSrc]);
+
+  const handleVideoError = (src?: string) => {
+    if (!src) return;
+    setFailedVideos((prev) => ({ ...prev, [src]: true }));
+  };
 
   return (
     <section className="mx-auto max-w-7xl px-4 sm:px-6 pt-4">
@@ -110,7 +127,7 @@ export const DynamicHeroSection: React.FC<DynamicHeroSectionProps> = ({
             onMouseLeave={() => setPaused(false)}
             className="relative rounded-2xl overflow-hidden border border-[var(--border-subtle)] bg-slate-900 text-white min-h-[320px] sm:h-[360px] flex flex-col justify-between"
           >
-            {/* Background Media: Only on Slide 03 (Bus & Airport); Image + Ken Burns on others */}
+            {/* Background Media: Video on Slide 01 & Slide 03; Image + Ken Burns on others */}
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-slate-900 via-sky-950 to-teal-950">
               {canPlayVideo ? (
                 <video
@@ -121,7 +138,7 @@ export const DynamicHeroSection: React.FC<DynamicHeroSectionProps> = ({
                   muted
                   playsInline
                   preload="metadata"
-                  onError={() => setVideoFailed(true)}
+                  onError={() => handleVideoError(resolvedVideoSrc)}
                   className="w-full h-full object-cover object-center brightness-95 contrast-95"
                 />
               ) : (
