@@ -1,0 +1,243 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerifiedUser() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isAdmin() {
+      return isVerifiedUser() && (
+        request.auth.token.email == 'cosohotmas@gmail.com' ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    function isValidOrder(data) {
+      return data.keys().hasAll([
+        'userId',
+        'buyerName',
+        'buyerEmail',
+        'departureDate',
+        'paymentMethod',
+        'itemSummary',
+        'items',
+        'totalAmount',
+        'shippingStatus',
+        'courier',
+        'trackingNumber',
+        'createdAt',
+        'updatedAt'
+      ])
+      && data.keys().hasOnly([
+        'userId',
+        'buyerName',
+        'buyerEmail',
+        'departureDate',
+        'paymentMethod',
+        'shippingAddress',
+        'shippingZipCode',
+        'shippingBaseAddress',
+        'shippingDetailAddress',
+        'selectedOptionsSummary',
+        'transportModes',
+        'itemSummary',
+        'items',
+        'totalAmount',
+        'shippingStatus',
+        'courier',
+        'trackingNumber',
+        'createdAt',
+        'updatedAt'
+      ])
+      && data.userId is string && isValidId(data.userId)
+      && data.buyerName is string && data.buyerName.size() >= 1 && data.buyerName.size() <= 60
+      && data.buyerEmail is string && data.buyerEmail.size() >= 3 && data.buyerEmail.size() <= 120
+      && data.departureDate is string && data.departureDate.size() >= 4 && data.departureDate.size() <= 20
+      && data.paymentMethod is string && data.paymentMethod.size() >= 2 && data.paymentMethod.size() <= 40
+      && (!('shippingAddress' in data) || (data.shippingAddress is string && data.shippingAddress.size() <= 200))
+      && (!('shippingZipCode' in data) || (data.shippingZipCode is string && data.shippingZipCode.size() <= 10))
+      && (!('shippingBaseAddress' in data) || (data.shippingBaseAddress is string && data.shippingBaseAddress.size() <= 150))
+      && (!('shippingDetailAddress' in data) || (data.shippingDetailAddress is string && data.shippingDetailAddress.size() <= 100))
+      && (!('selectedOptionsSummary' in data) || (data.selectedOptionsSummary is string && data.selectedOptionsSummary.size() <= 500))
+      && (!('transportModes' in data) || (data.transportModes is list && data.transportModes.size() <= 7))
+      && data.itemSummary is string && data.itemSummary.size() >= 1 && data.itemSummary.size() <= 500
+      && data.items is list && data.items.size() >= 1 && data.items.size() <= 15 && data.items[0] is map
+      && data.totalAmount is number && data.totalAmount >= 0 && data.totalAmount <= 100000000
+      && data.shippingStatus in ['결제완료', '상품준비중', '배송중', '배송완료']
+      && data.courier is string && data.courier.size() >= 1 && data.courier.size() <= 40
+      && data.trackingNumber is string && data.trackingNumber.size() >= 1 && data.trackingNumber.size() <= 40
+      && data.createdAt is timestamp
+      && data.updatedAt is timestamp;
+    }
+
+    function isValidInquiry(data) {
+      return data.keys().hasAll([
+        'userId',
+        'userEmail',
+        'category',
+        'subject',
+        'message',
+        'status',
+        'createdAt',
+        'updatedAt'
+      ])
+      && data.keys().hasOnly([
+        'userId',
+        'userEmail',
+        'orderId',
+        'category',
+        'subject',
+        'message',
+        'status',
+        'createdAt',
+        'updatedAt'
+      ])
+      && data.userId is string && isValidId(data.userId)
+      && data.userEmail is string && data.userEmail.size() >= 3 && data.userEmail.size() <= 120
+      && (!('orderId' in data) || (data.orderId is string && data.orderId.size() <= 128))
+      && data.category in ['상품 문의', '배송 문의', '교환·환불', '기타']
+      && data.subject is string && data.subject.size() >= 2 && data.subject.size() <= 100
+      && data.message is string && data.message.size() >= 5 && data.message.size() <= 1000
+      && data.status in ['답변 대기', '답변 완료']
+      && data.createdAt is timestamp
+      && data.updatedAt is timestamp;
+    }
+
+    function isValidChecklist(data) {
+      return data.keys().hasAll([
+        'userId',
+        'title',
+        'destination',
+        'duration',
+        'theme',
+        'companion',
+        'transportModes',
+        'haveItems',
+        'buyItems',
+        'localItems',
+        'carrierType',
+        'loadPercent',
+        'createdAt',
+        'updatedAt'
+      ])
+      && data.keys().hasOnly([
+        'userId',
+        'title',
+        'destination',
+        'duration',
+        'theme',
+        'companion',
+        'transportModes',
+        'haveItems',
+        'buyItems',
+        'localItems',
+        'carrierType',
+        'loadPercent',
+        'createdAt',
+        'updatedAt'
+      ])
+      && data.userId is string && isValidId(data.userId)
+      && data.title is string && data.title.size() >= 1 && data.title.size() <= 100
+      && data.destination is string && data.destination.size() <= 60
+      && data.duration is string && data.duration.size() <= 40
+      && data.theme is string && data.theme.size() <= 40
+      && data.companion is string && data.companion.size() <= 40
+      && data.transportModes is list && data.transportModes.size() <= 7
+      && data.haveItems is list && data.haveItems.size() <= 30
+      && data.buyItems is list && data.buyItems.size() <= 30
+      && data.localItems is list && data.localItems.size() <= 30
+      && data.carrierType is string && data.carrierType.size() <= 40
+      && data.loadPercent is number && data.loadPercent >= 0 && data.loadPercent <= 1000
+      && data.createdAt is timestamp
+      && data.updatedAt is timestamp;
+    }
+
+    match /orders/{orderId} {
+      allow get: if isSignedIn() && isValidId(orderId) && (existing().userId == request.auth.uid || isAdmin());
+      allow list: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isVerifiedUser()
+        && isValidId(orderId)
+        && isValidOrder(incoming())
+        && incoming().userId == request.auth.uid
+        && incoming().shippingStatus == '결제완료'
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      allow update: if isVerifiedUser()
+        && isValidId(orderId)
+        && isValidOrder(incoming())
+        && incoming().userId == existing().userId
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && (
+          (isAdmin() && incoming().diff(existing()).affectedKeys().hasOnly(['shippingStatus', 'courier', 'trackingNumber', 'updatedAt'])) ||
+          (existing().userId == request.auth.uid
+            && existing().shippingStatus != '배송완료'
+            && incoming().diff(existing()).affectedKeys().hasOnly(['shippingStatus', 'updatedAt']))
+        );
+      allow delete: if false;
+    }
+
+    match /inquiries/{inquiryId} {
+      allow get: if isSignedIn() && isValidId(inquiryId) && (existing().userId == request.auth.uid || isAdmin());
+      allow list: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isVerifiedUser()
+        && isValidId(inquiryId)
+        && isValidInquiry(incoming())
+        && incoming().userId == request.auth.uid
+        && incoming().status == '답변 대기'
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      allow update: if isVerifiedUser()
+        && isValidId(inquiryId)
+        && isAdmin()
+        && isValidInquiry(incoming())
+        && incoming().userId == existing().userId
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && existing().status != '답변 완료'
+        && incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt']);
+      allow delete: if false;
+    }
+
+    match /checklists/{checklistId} {
+      allow get: if isSignedIn() && isValidId(checklistId) && existing().userId == request.auth.uid;
+      allow list: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isVerifiedUser()
+        && isValidId(checklistId)
+        && isValidChecklist(incoming())
+        && incoming().userId == request.auth.uid
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      allow update: if isVerifiedUser()
+        && isValidId(checklistId)
+        && isValidChecklist(incoming())
+        && existing().userId == request.auth.uid
+        && incoming().userId == existing().userId
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time;
+      allow delete: if isVerifiedUser()
+        && isValidId(checklistId)
+        && existing().userId == request.auth.uid;
+    }
+  }
+}

@@ -1,0 +1,71 @@
+@import "tailwindcss";
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+:root {
+  --bg-canvas: #f8f7f4;
+  --bg-surface: #ffffff;
+  --bg-elevated: #f1efe9;
+  --bg-subtle: #ebe8e0;
+  --text-primary: #14171a;
+  --text-secondary: #4a5562;
+  --text-muted: #6c7684;
+  --border-subtle: #e2dfd7;
+  --border-strong: #c9c4b8;
+  --brand-primary: #0f4c81;
+  --brand-primary-hover: #0b3a63;
+  --brand-accent: #0d9488;
+  --brand-tint: #eef5fb;
+  --status-pass: #0f766e;
+  --status-warn: #b45309;
+  --status-danger: #be123c;
+}
+
+[data-theme="dark"] {
+  --bg-canvas: #0f1216;
+  --bg-surface: #161b22;
+  --bg-elevated: #1e2530;
+  --bg-subtle: #252e3b;
+  --text-primary: #f1f5f9;
+  --text-secondary: #b6c2d1;
+  --text-muted: #8b98a8;
+  --border-subtle: #28313f;
+  --border-strong: #394658;
+  --brand-primary: #3b82f6;
+  --brand-primary-hover: #2563eb;
+  --brand-accent: #14b8a6;
+  --brand-tint: #17253a;
+  --status-pass: #2dd4bf;
+  --status-warn: #fbbf24;
+  --status-danger: #fb7185;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--bg-canvas);
+  color: var(--text-primary);
+  font-family: 'Plus Jakarta Sans', 'Noto Sans KR', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.font-mono-num {
+  font-family: 'IBM Plex Mono', 'Noto Sans KR', monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Custom thin scrollbars inside chat & panels */
+.thin-scroll::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.thin-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.thin-scroll::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 9999px;
+}

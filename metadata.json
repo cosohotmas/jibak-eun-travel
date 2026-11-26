@@ -1,0 +1,8 @@
+{
+  "name": "집밖은여행 (Remix 여행 보수상)",
+  "description": "지식 그래프·RAG 기반 Gemini AI 챗봇 중심 스마트 여행 쇼핑몰 — 이동 수단별 규정 점검, 테트리스 용량 게이지, 현지 조달 연결, Firebase 주문·마이페이지·관리자 콘솔",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

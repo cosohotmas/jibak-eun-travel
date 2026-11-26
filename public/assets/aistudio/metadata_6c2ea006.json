@@ -1,0 +1,8 @@
+{
+  "name": "Remix 여행 보수상",
+  "description": "챗봇이 챙겨주는 여행 물품 쇼핑몰 — Firebase 회원가입·로그인·장바구니·마이페이지",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

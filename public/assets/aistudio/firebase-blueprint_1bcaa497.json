@@ -1,0 +1,171 @@
+{
+  "entities": {
+    "Order": {
+      "title": "Order",
+      "description": "A travel-item purchase and delivery tracking record belonging to an authenticated user.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Firebase Auth UID of the buyer",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "buyerName": {
+          "type": "string",
+          "description": "Recipient name",
+          "minLength": 1,
+          "maxLength": 60
+        },
+        "buyerEmail": {
+          "type": "string",
+          "format": "email",
+          "description": "Buyer email address",
+          "maxLength": 120
+        },
+        "departureDate": {
+          "type": "string",
+          "description": "Planned departure date (YYYY-MM-DD)",
+          "minLength": 4,
+          "maxLength": 20
+        },
+        "paymentMethod": {
+          "type": "string",
+          "description": "Selected payment method",
+          "minLength": 2,
+          "maxLength": 40
+        },
+        "itemSummary": {
+          "type": "string",
+          "description": "Readable summary of ordered items",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "items": {
+          "type": "array",
+          "description": "Bounded list of ordered items (max 15)"
+        },
+        "totalAmount": {
+          "type": "number",
+          "description": "Total order price in KRW"
+        },
+        "shippingStatus": {
+          "type": "string",
+          "enum": ["결제완료", "상품준비중", "배송중", "배송완료"],
+          "description": "Current delivery status"
+        },
+        "courier": {
+          "type": "string",
+          "description": "Courier company name",
+          "maxLength": 40
+        },
+        "trackingNumber": {
+          "type": "string",
+          "description": "Shipping tracking number",
+          "maxLength": 40
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server creation timestamp"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server last update timestamp"
+        }
+      },
+      "required": [
+        "userId",
+        "buyerName",
+        "buyerEmail",
+        "departureDate",
+        "paymentMethod",
+        "itemSummary",
+        "items",
+        "totalAmount",
+        "shippingStatus",
+        "courier",
+        "trackingNumber",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "Inquiry": {
+      "title": "Inquiry",
+      "description": "A customer inquiry submitted to the seller.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Firebase Auth UID of the inquirer",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "userEmail": {
+          "type": "string",
+          "format": "email",
+          "description": "Email of the inquirer",
+          "maxLength": 120
+        },
+        "orderId": {
+          "type": "string",
+          "description": "Optional related order ID",
+          "maxLength": 128
+        },
+        "category": {
+          "type": "string",
+          "enum": ["상품 문의", "배송 문의", "교환·환불", "기타"],
+          "description": "Inquiry category"
+        },
+        "subject": {
+          "type": "string",
+          "description": "Inquiry title",
+          "minLength": 2,
+          "maxLength": 100
+        },
+        "message": {
+          "type": "string",
+          "description": "Inquiry message body",
+          "minLength": 5,
+          "maxLength": 1000
+        },
+        "status": {
+          "type": "string",
+          "enum": ["답변 대기", "답변 완료"],
+          "description": "Seller reply status"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server creation timestamp"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server last update timestamp"
+        }
+      },
+      "required": [
+        "userId",
+        "userEmail",
+        "category",
+        "subject",
+        "message",
+        "status",
+        "createdAt",
+        "updatedAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/orders/{orderId}": {
+      "schema": { "$ref": "#/entities/Order" },
+      "description": "Authenticated user purchase orders and shipping tracking records."
+    },
+    "/inquiries/{inquiryId}": {
+      "schema": { "$ref": "#/entities/Inquiry" },
+      "description": "Authenticated user 1:1 inquiries sent to the seller."
+    }
+  }
+}
