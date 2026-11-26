@@ -15,7 +15,7 @@ import type {
   RollCallItem,
   StrictestConstraints,
   TransportModeId,
-} from '../src/types/domain.ts';
+} from '../src/types/domain.js';
 
 export const TRANSPORT_MODE_LABELS: Record<TransportModeId, string> = {
   walk: '도보',
